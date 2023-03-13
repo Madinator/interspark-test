@@ -1,8 +1,9 @@
+import { getJobById } from './../../store/job/job.actions';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Job } from 'app/core/models/jobs';
+import { IJob } from 'app/core/models/jobs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,23 +13,19 @@ export class JobService {
 
   constructor( private http: HttpClient) { }
 
-  getJobs(): Observable<Job[]> {
-    return this.http.get<Job[]>(this.baseUrl);
+  getJobs(): Observable<IJob[]> {
+    return this.http.get<IJob[]>(this.baseUrl);
   }
 
-  getJob(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/${id}`);
+  getJobById(id: number): Observable<IJob> {
+    return this.http.get<IJob>(`${this.baseUrl}/${id}`);
   }
 
-  createJob(job: any): Observable<Job> {
+  createJob(job: IJob): Observable<IJob> {
     return this.http.post<any>(this.baseUrl, job);
   }
 
-  updateJob(id: number, job: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, job);
-  }
-
-  deleteJob(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/${id}`);
+  updateJob(id: number, job: IJob): Observable<IJob> {
+    return this.http.put<IJob>(`${this.baseUrl}/${id}`, job);
   }
 }

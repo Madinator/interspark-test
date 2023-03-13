@@ -4,7 +4,7 @@ import { catchError, map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 import * as JobActions from './job.actions';
-import { JobService } from '../services/job.service';
+import { JobService } from 'app/core/services/job/job.service';
 
 @Injectable()
 export class JobEffects {
@@ -18,6 +18,18 @@ export class JobEffects {
         this.jobService.getJobs().pipe(
           map(jobs => JobActions.loadJobsSuccess({ jobs })),
           catchError(error => of(JobActions.loadJobsFailure({ error })))
+        )
+      )
+    )
+  );
+
+  getJobById$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(JobActions.getJobById),
+      mergeMap((action) =>
+        this.jobService.getJobById(action.id).pipe(
+          map((job) => JobActions.getJobByIdSuccess({ job })),
+          catchError((error) => of(JobActions.getJobByIdFailure({ error })))
         )
       )
     )
@@ -46,17 +58,4 @@ export class JobEffects {
       )
     )
   );
-
-  deleteJob$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(JobActions.deleteJob),
-      mergeMap(({ id }) =>
-        this.jobService.deleteJob(id).pipe(
-          map(() => JobActions.deleteJobSuccess({ id })),
-          catchError(error => of(JobActions.deleteJobFailure({ error })))
-        )
-      )
-    )
-  );
-
 }

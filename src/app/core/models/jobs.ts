@@ -1,4 +1,6 @@
-export interface Job {
+import { AbstractControl, FormGroup } from "@angular/forms";
+
+export interface IJob {
     id: number,
     job_number: string,
     job_title: string,

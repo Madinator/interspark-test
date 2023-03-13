@@ -1,10 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { JobService } from 'app/core/services/job/job.service';
-import { UtilsService } from 'app/shared/service/utils/utils.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-
+import { IJob } from 'app/core/models/jobs';
+import { JobState } from 'app/core/store/job/job.state';
+import { getJobById, updateJob, createJob } from 'app/core/store/job/job.actions';
+import { UtilsService } from 'app/shared/service/utils/utils.service';
+import { selectJobById } from 'app/core/store/job/job.selector';
 
 @Component({
   selector: 'app-job-form',
@@ -12,12 +17,14 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./job-form.component.scss']
 })
 export class JobFormComponent implements OnInit {
+
   public myForm: FormGroup;
   public isEditMode = false;
+  public job$: Observable<IJob | undefined>;
 
   constructor(
     private formBuilder: FormBuilder,
-    private jobService: JobService,
+    private store: Store<JobState>,
     private utilsService: UtilsService,
     private router: Router,
     private route: ActivatedRoute,
@@ -31,18 +38,38 @@ export class JobFormComponent implements OnInit {
       number_of_openings: ['', Validators.required],
       job_notes: ['', Validators.maxLength(100)],
     });
+    this.job$ = this.store.select(selectJobById(Number(this.route.snapshot.paramMap.get('id'))));
   }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if(id) {
+    if (id) {
       this.isEditMode = true;
+      this.store.dispatch(getJobById({ id: Number(id) }));
+      this.job$.pipe(
+        map(job => {
+          if (job) {
+            const formattedStartDate = this.utilsService.dateFormatterToDatepicker(job.job_start_date.toString());
+            const formattedCloseDate = this.utilsService.dateFormatterToDatepicker(job.job_close_date.toString());
+            this.myForm.patchValue({
+              job_number: job.job_number,
+              job_title: job.job_title,
+              job_start_date: formattedStartDate,
+              job_close_date: formattedCloseDate,
+              experience_required: job.experience_required,
+              number_of_openings: job.number_of_openings,
+              job_notes: job.job_notes,
+            });
+          }
+        })
+      ).subscribe();
     }
   }
+
   createJob(): void {
     if(this.myForm.valid) {
-      const formattedStartDate = this.utilsService.dateFormatter(this.myForm.get('job_start_date'));
-      const formattedCloseDate = this.utilsService.dateFormatter(this.myForm.get('job_close_date'));
+      const formattedStartDate = this.utilsService.dateFormatterFromDatepicker(this.myForm.get('job_start_date'));
+      const formattedCloseDate = this.utilsService.dateFormatterFromDatepicker(this.myForm.get('job_close_date'));
     
       if (formattedStartDate && formattedCloseDate) {
         this.myForm.patchValue({
@@ -51,20 +78,12 @@ export class JobFormComponent implements OnInit {
         });
         
         if(this.isEditMode && this.route.snapshot.paramMap.get('id')) {
-          this.jobService.updateJob(Number(this.route.snapshot.paramMap.get('id')), this.myForm.value).subscribe(data => {
-            if(data) {
-              this.router.navigate(['/jobs']);
-            }
-          });
+          this.store.dispatch(updateJob({ id: Number(this.route.snapshot.paramMap.get('id')), changes: this.myForm.value }));
         } else {
-          this.jobService.createJob(this.myForm.value).subscribe(data => {
-            if(data) {
-              this.router.navigate(['/jobs']);
-            }
-          });
+          this.store.dispatch(createJob({ job: this.myForm.value }));
         }
+        this.router.navigate(['/jobs']);
       }
     }
   }
 }
-

@@ -1,11 +1,11 @@
-import { Job } from 'app/core/models/jobs';
+import { IJob } from 'app/core/models/jobs';
 
 export interface JobState {
-    jobs: Job[];
+    jobs: IJob[];
     loading: boolean;
     error: any;
 }
-  
+
 export const initialJobState: JobState = {
     jobs: [],
     loading: false,

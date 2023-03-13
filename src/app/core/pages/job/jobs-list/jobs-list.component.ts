@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Job } from 'app/core/models/jobs';
+import { Store } from '@ngrx/store';
+import { map, Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { JobService } from 'app/core/services/job/job.service';
+
+import { IJob } from 'app/core/models/jobs';
+import { JobState } from 'app/core/store/job/job.state';
+import { loadJobs } from 'app/core/store/job/job.actions';
+import { selectJobs } from 'app/core/store/job/job.selector';
 
 @Component({
   selector: 'app-jobs-list',
@@ -9,18 +14,23 @@ import { JobService } from 'app/core/services/job/job.service';
   styleUrls: ['./jobs-list.component.scss']
 })
 export class JobsListComponent implements OnInit {
-  public jobsList: Job[] = [];
+  public jobsList$: Observable<IJob[]> | undefined;
+
   constructor(
-    private jobService: JobService,
-    private router: Router) 
-  { }
+    private store: Store<JobState>,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.jobService.getJobs()
-    .subscribe(data => {
-      this.jobsList = data;
-    })
+    this.store.dispatch(loadJobs());
+    this.jobsList$ = this.store.select(selectJobs);
+    this.jobsList$.pipe(
+      map(job => {
+        console.log(job)
+      })
+    ).subscribe();
   }
+
   goToJobForm(id?: number): void {
     if(id) {
       this.router.navigate(['/jobs/' + id]);
