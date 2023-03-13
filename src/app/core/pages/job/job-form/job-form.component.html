@@ -1,0 +1,43 @@
+<form [formGroup]="myForm">
+  <div class="form-group">
+    <label for="job_number">Job Number</label>
+    <input type="text" class="form-control" formControlName="job_number">
+  </div>
+  
+  <div class="form-group mt-3">
+    <label for="job_title">Job Title</label>
+    <input type="text" class="form-control" formControlName="job_title">
+  </div>
+  
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group col-md-3 mt-3">
+        <label for="job_start_date">Job Start Date</label>
+        <ngb-datepicker #startDatePicker formControlName="job_start_date"></ngb-datepicker>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group col-md-3 mt-3">
+        <label for="job_close_date">Job Close Date</label>
+        <ngb-datepicker #closeDatePicker formControlName="job_close_date"></ngb-datepicker>
+      </div>
+    </div>
+  </div>
+  
+  <div class="form-group form-check mt-3">
+    <input type="checkbox" class="form-check-input" formControlName="experience_required">
+    <label class="form-check-label" for="experience_required">Experience Required</label>
+  </div>
+  
+  <div class="form-group mt-3">
+    <label for="number_of_openings">Number of Openings</label>
+    <input type="number" class="form-control" formControlName="number_of_openings">
+  </div>
+  
+  <div class="form-group mt-3">
+    <label for="job_notes">Job Notes</label>
+    <textarea class="form-control" formControlName="job_notes"></textarea>
+  </div>
+  
+  <button type="submit" class="btn btn-primary mt-3" (click)="createJob()">Submit</button>
+</form>

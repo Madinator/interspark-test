@@ -1,0 +1,27 @@
+<button type="button" class="btn btn-primary" (click)="goToJobForm()">Add</button>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">number</th>
+            <th scope="col">title</th>
+            <th scope="col">start date</th>
+            <th scope="col">close date</th>
+            <th scope="col">experience required</th>
+            <th scope="col">number of openings</th>
+            <th scope="col">job notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="pointer" *ngFor="let job of jobsList" (click)="goToJobForm(job.id)">
+            <td>{{ job.id }}</td>
+            <td>{{job.job_number}}</td>
+            <td>{{job.job_title}}</td>
+            <td>{{job.job_start_date}}</td>
+            <td>{{job.job_close_date}}</td>
+            <td>{{job.experience_required}}</td>
+            <td>{{job.number_of_openings}}</td>
+            <td>{{job.job_notes}}</td>
+        </tr>
+    </tbody>
+</table>
